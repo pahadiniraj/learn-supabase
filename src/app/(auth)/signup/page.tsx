@@ -1,6 +1,9 @@
+import { RedirectIfAuthenticated } from "../../../../utils/redirectIfAuthenticated";
 import { signup } from "../action";
 
-export default function page() {
+export default async function page() {
+  await RedirectIfAuthenticated();
+
   return (
     <form className="max-w-sm mx-auto mt-20 p-6 bg-white text-black shadow-lg rounded-xl space-y-4">
       <h2 className="text-2xl font-semibold text-center">Create Account</h2>

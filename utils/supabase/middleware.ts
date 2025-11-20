@@ -16,6 +16,7 @@ export async function updateSession(request: NextRequest) {
           }));
         },
         setAll(cookiesToSet) {
+          // ❗ this must be reset BEFORE setting cookies
           response = NextResponse.next({ request });
 
           cookiesToSet.forEach(({ name, value, options }) => {
@@ -23,9 +24,16 @@ export async function updateSession(request: NextRequest) {
           });
         },
       },
+
+      // THE IMPORTANT PART ↓↓↓
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
     }
   );
 
+  // This triggers Supabase to refresh expired access tokens
   await supabase.auth.getSession();
 
   return response;

@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { RedirectIfAuthenticated } from "../../../../utils/redirectIfAuthenticated";
 import { login } from "../action";
+import { RedirectIfAuthenticated } from "../../../../utils/redirectIfAuthenticated";
 
 export default async function LoginPage() {
   await RedirectIfAuthenticated();
-
   return (
     <form className="max-w-sm mx-auto mt-20 p-6 bg-white text-black shadow-lg rounded-xl space-y-4">
       <h2 className="text-2xl font-semibold text-center">Welcome Back</h2>
