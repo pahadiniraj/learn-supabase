@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-black text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4 ">
       <Link
         href="/login"
         className="px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition"
