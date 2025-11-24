@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { createClient } from "./supabase/server";
+import { createActionClient } from "./supabase/action";
 
 export async function RedirectIfAuthenticated(path = "/private") {
-  const supabase = await createClient();
+  const supabase = await createActionClient();
   const { data } = await supabase.auth.getUser();
 
   if (data?.user) {

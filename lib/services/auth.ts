@@ -20,6 +20,7 @@ export async function login(payload: LoginSchemaType) {
       console.error(err);
       throw new Error(err.message);
     }
+    throw new Error("Server error");
   }
 }
 
@@ -57,7 +58,6 @@ export async function signout() {
   } catch (err) {
     if (err instanceof Error) {
       console.error(err);
-      throw new Error(err.message);
     }
   }
 }
