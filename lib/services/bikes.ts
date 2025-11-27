@@ -1,21 +1,18 @@
 "use server";
 import { createActionClient } from "../../utils/supabase/action";
-import { BrandsResponse } from "../types/brands";
-
+import { BikeResponseType, BikeYearResponseType } from "../types/bikes";
 import { ApiResponse } from "../types/response";
 
-export async function getBrandsWithBikes(): Promise<
-  ApiResponse<BrandsResponse[]>
-> {
+export async function getBikes(): Promise<ApiResponse<BikeResponseType[]>> {
   try {
     const supabase = await createActionClient();
-    const { data, error } = await supabase.rpc("brands_with_bikes");
+    const { data, error } = await supabase.from("bikes").select(`*`);
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return { success: true, data: data, message: "Brand fetched success" };
+    return { success: true, data: data, message: "Bikes fetched success" };
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error(err);
@@ -25,16 +22,21 @@ export async function getBrandsWithBikes(): Promise<
   }
 }
 
-export async function getBrands(): Promise<ApiResponse<BrandsResponse[]>> {
+export async function getBikeYear(
+  bikeId: number
+): Promise<ApiResponse<BikeYearResponseType[]>> {
   try {
     const supabase = await createActionClient();
-    const { data, error } = await supabase.rpc("brands_with_products");
+    const { data, error } = await supabase
+      .from("bike_years")
+      .select(`*`)
+      .eq("bike_id", bikeId);
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return { success: true, data: data, message: "Brand fetched success" };
+    return { success: true, data: data, message: "Bike years fetched success" };
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error(err);

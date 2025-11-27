@@ -1,18 +1,18 @@
 "use server";
 import { createActionClient } from "../../utils/supabase/action";
-import { CategoryResponseType } from "../types/category";
+import { Category } from "../types/category";
 import { ApiResponse } from "../types/response";
 
-export async function getCategory(): Promise<ApiResponse<CategoryResponseType[]>> {
+export async function getAttributes(): Promise<ApiResponse<Category[]>> {
   try {
     const supabase = await createActionClient();
-    const { data, error } = await supabase.from("categories").select(`*`);
+    const { data, error } = await supabase.from("attributes").select(`*`);
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return { success: true, data: data, message: "Category fetched success" };
+    return { success: true, data: data, message: "Attributes fetched success" };
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error(err);

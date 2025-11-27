@@ -1,6 +1,6 @@
-import { Category } from "./category";
+import { CategoryResponseType } from "./category";
 
-export type Product = {
+export type ProductsType = {
   id: number;
   name: string;
   description: string;
@@ -9,5 +9,19 @@ export type Product = {
   category_id: number;
   brand_id: number;
   created_at: string;
-  categories: Category; // relation
+  categories: CategoryResponseType;
+};
+
+export type ProductsWithAttributesType = {
+  id: string;
+  product_id: ProductsType;
+  attribute_value_id: string;
+};
+
+export type ProductQuery = {
+  productCategoryId?: number;
+  productBrandId?: number;
+  bikeBrandId?: number;
+  bikeModelId?: number;
+  bikeYearId?: number;
 };
