@@ -1,9 +1,11 @@
 "use server";
 import { createActionClient } from "../../utils/supabase/action";
-import { CategoryResponseType } from "../types/category";
+import { CategoryAttributeType, CategoryResponseType } from "../types/category";
 import { ApiResponse } from "../types/response";
 
-export async function getCategory(): Promise<ApiResponse<CategoryResponseType[]>> {
+export async function getCategory(): Promise<
+  ApiResponse<CategoryResponseType[]>
+> {
   try {
     const supabase = await createActionClient();
     const { data, error } = await supabase.from("categories").select(`*`);
@@ -13,6 +15,33 @@ export async function getCategory(): Promise<ApiResponse<CategoryResponseType[]>
     }
 
     return { success: true, data: data, message: "Category fetched success" };
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(err);
+      throw new Error(err.message);
+    }
+    throw new Error("Server error");
+  }
+}
+
+export async function getAttributesWithCategoryId(
+  categoryId?: number
+): Promise<ApiResponse<CategoryAttributeType[]>> {
+  try {
+    const supabase = await createActionClient();
+    const { data, error } = await supabase.rpc("get_category_attributes", {
+      p_category_id: categoryId,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      success: true,
+      data: data,
+      message: "Attributes related to category fetched successfully",
+    };
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error(err);

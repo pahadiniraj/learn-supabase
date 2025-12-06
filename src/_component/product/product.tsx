@@ -7,11 +7,14 @@ import { useState } from "react";
 import FilterByBikeModel from "./filter-with-bike-model";
 import { Button } from "@/components/ui/button";
 import { useGetBrands } from "../../../lib/hooks/brand";
+import FilterWithAttribute from "./filter-with-attribute";
+import SelectedProduct from "./selected-product";
 
 export default function Product() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // URL query params
   const categoryIdFromQuery = searchParams.get("categoryId");
   const brandIdFromQuery = searchParams.get("brandId");
   const bikeBrandIdFromQuery = searchParams.get("bikeBrandId");
@@ -25,8 +28,9 @@ export default function Product() {
     brandIdFromQuery ? Number(brandIdFromQuery) : undefined
   );
 
-  const { data: categoryData, isLoading: categoryLoading } = useGetCategory();
-  const { data: brandsData, isLoading: brandsLoading } = useGetBrands();
+  // State to store selected variant per product
+  const [selectProduct, setSelectProduct] = useState<boolean>(false);
+  const [selectProductId, setSelectProductId] = useState<number | null>(null);
 
   // Convert bike params to numbers
   const bikeBrandId = bikeBrandIdFromQuery
@@ -39,6 +43,8 @@ export default function Product() {
     ? Number(bikeYearIdFromQuery)
     : undefined;
 
+  const { data: categoryData, isLoading: categoryLoading } = useGetCategory();
+  const { data: brandsData, isLoading: brandsLoading } = useGetBrands();
   const { data: productData, isLoading: productLoading } = useGetProductByQuery(
     {
       productCategoryId: selectedCategoryId,
@@ -49,6 +55,10 @@ export default function Product() {
     }
   );
 
+  console.log(productData);
+
+  const isLoading = categoryLoading || brandsLoading || productLoading;
+
   const selectedCategoryName = categoryData?.data.find(
     (cat) => cat.id === selectedCategoryId
   )?.name;
@@ -57,8 +67,7 @@ export default function Product() {
     (b) => b.id === selectedBrand
   )?.name;
 
-  const isLoading = categoryLoading || brandsLoading || productLoading;
-
+  // Update URL params
   const updateParams = (paramsObj: Record<string, number | undefined>) => {
     const params = new URLSearchParams();
     Object.entries(paramsObj).forEach(([key, value]) => {
@@ -70,14 +79,14 @@ export default function Product() {
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value ? Number(e.target.value) : undefined;
     setSelectedCategoryId(value);
-    // Reset all other filters when category changes
-    setSelectedBrand(undefined);
+    setSelectedBrand(undefined); // Reset brand filter
     updateParams({ categoryId: value });
   };
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value ? Number(e.target.value) : undefined;
     setSelectedBrand(value);
+    updateParams({ brandId: value });
   };
 
   const handleClearFilters = () => {
@@ -130,60 +139,74 @@ export default function Product() {
 
       {/* Selected Product Breadcrumb */}
       {(selectedCategoryName || selectedBrandName || bikeBrandId) && (
-        <div className="p-6 text-xl   rounded mb-4">
-          <p>
-            Selected Products:{" "}
-            {selectedCategoryName && (
-              <span className="font-semibold ml-3">{selectedCategoryName}</span>
-            )}
-            {selectedBrandName && (
-              <>
-                {" -> "}
-                <span className="font-semibold">{selectedBrandName}</span>
-              </>
-            )}
-            {bikeBrandId && (
-              <>
-                {" > "}
-                <span className="font-semibold">Bike Filter Applied</span>
-              </>
-            )}
-          </p>
+        <div>
+          <div className="p-6 text-xl rounded mb-4">
+            <p>
+              Selected Products:{" "}
+              {selectedCategoryName && (
+                <span className="font-semibold ml-3">
+                  {selectedCategoryName}
+                </span>
+              )}
+              {selectedBrandName && (
+                <>
+                  {" -> "}
+                  <span className="font-semibold">{selectedBrandName}</span>
+                </>
+              )}
+              {bikeBrandId && (
+                <>
+                  {" > "}
+                  <span className="font-semibold">Bike Filter Applied</span>
+                </>
+              )}
+            </p>
+          </div>
+          <FilterWithAttribute selectedCategoryId={selectedCategoryId} />
         </div>
       )}
 
       {/* Product Grid */}
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
         {productData?.data?.map((product) => (
           <div
             key={product.id}
-            className="border rounded-lg shadow hover:shadow-lg transition p-4 bg-white text-black"
+            className="bg-white text-black p-4 rounded-lg shadow hover:shadow-lg active:bg-yellow-200"
+            onClick={() => {
+              setSelectProduct(true);
+              setSelectProductId(product.id);
+            }}
           >
-            <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-            <p>
-              <span className="font-medium">Description:</span>{" "}
-              {product.description}
-            </p>
-            <p>
-              <span className="font-medium">SKU:</span> {product.sku}
-            </p>
-            <p>
-              <span className="font-medium">Price:</span> ${product.price}
-            </p>
-            <p>
-              <span className="font-medium">Category:</span>{" "}
-              {product.categories?.name}
-            </p>
-            <p className="text-sm mt-2">
+            <h2 className="text-lg font-semibold mb-1">{product.name}</h2>
+
+            <p className="text-sm mb-1">SKU: {product.sku}</p>
+
+            <p className="text-sm mb-2">Price: Rs {product.price}</p>
+
+            <p className="text-sm mb-2">Category ID: {product.category_id}</p>
+
+            <p className="text-sm mb-2">Description: {product.description}</p>
+
+            <p className="text-xs mt-2 text-gray-400">
               Created: {new Date(product.created_at).toLocaleDateString()}
             </p>
           </div>
         ))}
 
         {productData?.data?.length === 0 && (
-          <p className="text-center col-span-full">No products found.</p>
+          <p className="text-center col-span-full text-gray-500">
+            No products found.
+          </p>
         )}
       </div>
+
+      {selectProduct && (
+        <SelectedProduct
+          productId={selectProductId}
+          selectProduct={selectProduct}
+          setSelectProduct={setSelectProduct}
+        />
+      )}
     </>
   );
 }

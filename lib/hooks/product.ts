@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getProducts,
-  getProductsWithAttributes,
+  getProductsWithId,
   getProductsWithQuery,
 } from "../services/product";
 import { ProductQuery } from "../types/product";
@@ -21,12 +21,10 @@ export function useGetProductByQuery(params: ProductQuery) {
   });
 }
 
-export function useGetProductByAttributes(
-  categoryId?: number,
-  brandId?: number
-) {
+export function useGetProductById(productId?: number | null) {
   return useQuery({
-    queryKey: ["product-with-attributes"],
-    queryFn: () => getProductsWithAttributes(),
+    queryKey: ["product-with-attributes", productId],
+    queryFn: () => getProductsWithId(productId),
+    enabled: !!productId,
   });
 }

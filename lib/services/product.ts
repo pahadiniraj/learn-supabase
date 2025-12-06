@@ -1,11 +1,7 @@
 "use server";
 
 import { createActionClient } from "../../utils/supabase/action";
-import {
-  ProductQuery,
-  ProductsType,
-  ProductsWithAttributesType,
-} from "../types/product";
+import { ProductQuery, ProductsType, ProductWithId } from "../types/product";
 import { ApiResponse } from "../types/response";
 
 export async function getProducts(): Promise<ApiResponse<ProductsType[]>> {
@@ -68,15 +64,15 @@ export async function getProductsWithQuery(
   }
 }
 
-export async function getProductsWithAttributes(): Promise<
-  ApiResponse<ProductsWithAttributesType[]>
-> {
+export async function getProductsWithId(
+  productId?: number | null
+): Promise<ApiResponse<ProductWithId>> {
   try {
     const supabase = await createActionClient();
 
-    const { data, error } = await supabase
-      .from("product_attributes")
-      .select(`* `);
+    const { data, error } = await supabase.rpc("get_product_with_variants", {
+      p_product_id: productId,
+    });
 
     if (error) {
       throw new Error(error.message);
